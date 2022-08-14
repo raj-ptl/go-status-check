@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/raj-ptl/go-status-check/models"
@@ -34,11 +33,11 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		// w.Write(jsonWIP)
 
 		// body, errBodyParse := ioutil.ReadAll(r.Body)
-		_, errBodyParse := ioutil.ReadAll(r.Body)
+		//_, errBodyParse := ioutil.ReadAll(r.Body)
 
-		if errBodyParse != nil {
-			jsonErrBodyParse, _ := json.Marshal(errBodyParse)
-			w.Write(jsonErrBodyParse)
+		if false {
+			// jsonErrBodyParse, _ := json.Marshal(errBodyParse)
+			// w.Write(jsonErrBodyParse)
 		} else {
 			//w.Write(body)
 
@@ -60,7 +59,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 					errorResponse(w, "Bad Request "+errUnmarshal.Error(), http.StatusBadRequest)
 				}
 
-				errorResponse(w, "Bad Request. Wrong Type provided for field ", http.StatusBadRequest)
+				//errorResponse(w, "Bad Request. Wrong Type provided for field ", http.StatusBadRequest)
 				// jsonErrUnmarshal, _ := json.Marshal(errUnmarshal)
 				// w.Write(jsonErrUnmarshal)
 			} else {
