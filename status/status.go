@@ -22,6 +22,8 @@ type StatusChecker interface {
 type HttpChecker struct {
 }
 
+var hc HttpChecker
+
 var WebsiteMap = make(map[string]*WebsiteStatus)
 
 func ExposeMap() *map[string]*WebsiteStatus {
@@ -30,17 +32,12 @@ func ExposeMap() *map[string]*WebsiteStatus {
 
 func InitializeMap() {
 	fmt.Println("InitializeMap() invoked ...")
-	//WebsiteMap := make(map[string]*websiteStatus)
-	// WebsiteMap["test.com"] = &websiteStatus{
-	// 	URL:         "test.com",
-	// 	LastChecked: time.Now(),
-	// }
 
 	DisplayMap(&WebsiteMap)
 
 }
 
-func (h HttpChecker) Check(ctx context.Context, name string) (status bool, err error) {
+func (h HttpChecker) Check(ctx context.Context, name string) (status string, err error) {
 
 	fmt.Println("Checking for : ", name)
 
@@ -58,11 +55,24 @@ func (h HttpChecker) Check(ctx context.Context, name string) (status bool, err e
 	fmt.Printf("Status : %s:\n", res.Status)
 	fmt.Printf("Status Code : %d:\n", res.StatusCode)
 
-	return true, nil
+	if res.StatusCode != 200 {
+		return "DOWN", nil
+	}
+
+	return "UP", nil
 }
 
 func DisplayMap(m *map[string]*WebsiteStatus) {
 	for _, v := range *m {
 		fmt.Printf("%+v\n", v)
+	}
+}
+
+func UpdateSingleSite(url string) {
+	status, _ := hc.Check(context.TODO(), url)
+	WebsiteMap[url] = &WebsiteStatus{
+		URL:         url,
+		Status:      status,
+		LastChecked: time.Now(),
 	}
 }

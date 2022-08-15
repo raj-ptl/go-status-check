@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/raj-ptl/go-status-check/models"
 	"github.com/raj-ptl/go-status-check/status"
@@ -78,11 +77,16 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			for _, site := range sr.Websites {
-				(*WebsiteMap)[site] = &status.WebsiteStatus{
-					URL:         site,
-					Status:      "genericTestStatus",
-					LastChecked: time.Now(),
-				}
+
+				// (*WebsiteMap)[site] = &status.WebsiteStatus{
+				// 	URL:         site,
+				// 	Status:      "genericTestStatus",
+				// 	LastChecked: time.Now(),
+				// }
+
+				// update Single Site
+				status.UpdateSingleSite(site)
+
 			}
 
 		}
