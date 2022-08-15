@@ -76,6 +76,8 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 				w.Write(jsonWIP)
 			}
 
+			ch := make(chan int)
+
 			for _, site := range sr.Websites {
 
 				// (*WebsiteMap)[site] = &status.WebsiteStatus{
@@ -85,7 +87,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 				// }
 
 				// update Single Site
-				status.UpdateSingleSite(site)
+				go status.UpdateSingleSite(site, ch)
 
 			}
 

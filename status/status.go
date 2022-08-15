@@ -68,11 +68,12 @@ func DisplayMap(m *map[string]*WebsiteStatus) {
 	}
 }
 
-func UpdateSingleSite(url string) {
+func UpdateSingleSite(url string, ch chan int) {
 	status, _ := hc.Check(context.TODO(), url)
 	WebsiteMap[url] = &WebsiteStatus{
 		URL:         url,
 		Status:      status,
 		LastChecked: time.Now(),
 	}
+	<-ch
 }
