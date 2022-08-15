@@ -9,8 +9,9 @@ import (
 	"time"
 )
 
-type websiteStatus struct {
+type WebsiteStatus struct {
 	URL         string
+	Status      string
 	LastChecked time.Time
 }
 
@@ -21,9 +22,9 @@ type StatusChecker interface {
 type HttpChecker struct {
 }
 
-var WebsiteMap = make(map[string]*websiteStatus)
+var WebsiteMap = make(map[string]*WebsiteStatus)
 
-func ExposeMap() *map[string]*websiteStatus {
+func ExposeMap() *map[string]*WebsiteStatus {
 	return &WebsiteMap
 }
 
@@ -35,7 +36,7 @@ func InitializeMap() {
 	// 	LastChecked: time.Now(),
 	// }
 
-	displayMap(&WebsiteMap)
+	DisplayMap(&WebsiteMap)
 
 }
 
@@ -60,7 +61,7 @@ func (h HttpChecker) Check(ctx context.Context, name string) (status bool, err e
 	return true, nil
 }
 
-func displayMap(m *map[string]*websiteStatus) {
+func DisplayMap(m *map[string]*WebsiteStatus) {
 	for _, v := range *m {
 		fmt.Printf("%+v\n", v)
 	}
