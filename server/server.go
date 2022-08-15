@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,6 +9,8 @@ import (
 	"github.com/raj-ptl/go-status-check/models"
 	"github.com/raj-ptl/go-status-check/status"
 )
+
+var WebsiteMap = status.ExposeMap()
 
 func ServeRequests() {
 	fmt.Println("Serving now...")
@@ -35,13 +36,16 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method == "GET" {
-		var hc status.HttpChecker
-		hc.Check(context.TODO(), "google.com")
-		hc.Check(context.TODO(), "twitter.com")
-		hc.Check(context.TODO(), "localhost:9090/")
-		hc.Check(context.TODO(), "localhost:9090/undefined")
-		jsonWIP, _ := json.Marshal("/GET WIP")
-		w.Write(jsonWIP)
+		//var hc status.HttpChecker
+
+		if len(status.WebsiteMap) == 0 {
+			jsonMapNotInitialized, _ := json.Marshal("No websites added, use /POST to add websites to status check")
+			w.Write(jsonMapNotInitialized)
+		} else {
+			jsonWIP, _ := json.Marshal("WIP")
+			w.Write(jsonWIP)
+		}
+
 	} else if r.Method == "POST" {
 
 		var sr models.StatusRequest

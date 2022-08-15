@@ -21,15 +21,21 @@ type StatusChecker interface {
 type HttpChecker struct {
 }
 
+var WebsiteMap = make(map[string]*websiteStatus)
+
+func ExposeMap() *map[string]*websiteStatus {
+	return &WebsiteMap
+}
+
 func InitializeMap() {
 	fmt.Println("InitializeMap() invoked ...")
-	websiteMap := make(map[string]*websiteStatus)
-	websiteMap["test.com"] = &websiteStatus{
-		URL:         "test.com",
-		LastChecked: time.Now(),
-	}
+	//WebsiteMap := make(map[string]*websiteStatus)
+	// WebsiteMap["test.com"] = &websiteStatus{
+	// 	URL:         "test.com",
+	// 	LastChecked: time.Now(),
+	// }
 
-	displayMap(&websiteMap)
+	displayMap(&WebsiteMap)
 
 }
 
