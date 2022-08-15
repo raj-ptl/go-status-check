@@ -1,12 +1,14 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/raj-ptl/go-status-check/models"
+	"github.com/raj-ptl/go-status-check/status"
 )
 
 func ServeRequests() {
@@ -17,6 +19,13 @@ func ServeRequests() {
 }
 
 func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Undefined Endpoint
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, "Welcome to the server\n")
 }
@@ -26,52 +35,39 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method == "GET" {
+		var hc status.HttpChecker
+		hc.Check(context.TODO(), "google.com")
+		hc.Check(context.TODO(), "twitter.com")
+		hc.Check(context.TODO(), "localhost:9090/")
+		hc.Check(context.TODO(), "localhost:9090/undefined")
 		jsonWIP, _ := json.Marshal("/GET WIP")
 		w.Write(jsonWIP)
 	} else if r.Method == "POST" {
-		// jsonWIP, _ := json.Marshal("/POST WIP")
-		// w.Write(jsonWIP)
 
-		// body, errBodyParse := ioutil.ReadAll(r.Body)
-		//_, errBodyParse := ioutil.ReadAll(r.Body)
+		var sr models.StatusRequest
 
-		if false {
-			// jsonErrBodyParse, _ := json.Marshal(errBodyParse)
-			// w.Write(jsonErrBodyParse)
-		} else {
-			//w.Write(body)
+		decoder := json.NewDecoder(r.Body)
+		decoder.DisallowUnknownFields()
+		errUnmarshal := decoder.Decode(&sr)
 
-			var sr models.StatusRequest
+		var unmarshalErr *json.UnmarshalTypeError
 
-			//errUnmarshal := json.Unmarshal(body, &sr)
+		if errUnmarshal != nil {
 
-			decoder := json.NewDecoder(r.Body)
-			decoder.DisallowUnknownFields()
-			errUnmarshal := decoder.Decode(&sr)
-
-			var unmarshalErr *json.UnmarshalTypeError
-
-			if errUnmarshal != nil {
-
-				if errors.As(errUnmarshal, &unmarshalErr) {
-					errorResponse(w, "Bad Request. Wrong Type provided for field "+unmarshalErr.Field, http.StatusBadRequest)
-				} else {
-					errorResponse(w, "Bad Request "+errUnmarshal.Error(), http.StatusBadRequest)
-				}
-
-				//errorResponse(w, "Bad Request. Wrong Type provided for field ", http.StatusBadRequest)
-				// jsonErrUnmarshal, _ := json.Marshal(errUnmarshal)
-				// w.Write(jsonErrUnmarshal)
+			if errors.As(errUnmarshal, &unmarshalErr) {
+				errorResponse(w, "Bad Request. Wrong Type provided for field "+unmarshalErr.Field, http.StatusBadRequest)
 			} else {
-				srJson, errMarshal := json.Marshal(sr)
-				if errMarshal != nil {
-					jsonErrMarshal, _ := json.Marshal(errMarshal)
-					w.Write(jsonErrMarshal)
-				} else {
-					w.Write(srJson)
-				}
+				errorResponse(w, "Bad Request "+errUnmarshal.Error(), http.StatusBadRequest)
 			}
 
+		} else {
+			srJson, errMarshal := json.Marshal(sr)
+			if errMarshal != nil {
+				jsonErrMarshal, _ := json.Marshal(errMarshal)
+				w.Write(jsonErrMarshal)
+			} else {
+				w.Write(srJson)
+			}
 		}
 
 	} else {
