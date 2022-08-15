@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/raj-ptl/go-status-check/models"
 	"github.com/raj-ptl/go-status-check/status"
@@ -44,6 +45,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			jsonWIP, _ := json.Marshal("WIP")
 			w.Write(jsonWIP)
+			status.DisplayMap(WebsiteMap)
 		}
 
 	} else if r.Method == "POST" {
@@ -65,13 +67,24 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 		} else {
-			srJson, errMarshal := json.Marshal(sr)
+			_, errMarshal := json.Marshal(sr)
 			if errMarshal != nil {
 				jsonErrMarshal, _ := json.Marshal(errMarshal)
 				w.Write(jsonErrMarshal)
 			} else {
-				w.Write(srJson)
+				//w.Write(srJson)
+				jsonWIP, _ := json.Marshal("WIP")
+				w.Write(jsonWIP)
 			}
+
+			for _, site := range sr.Websites {
+				(*WebsiteMap)[site] = &status.WebsiteStatus{
+					URL:         site,
+					Status:      "genericTestStatus",
+					LastChecked: time.Now(),
+				}
+			}
+
 		}
 
 	} else {
