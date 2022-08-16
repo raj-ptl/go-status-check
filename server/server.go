@@ -43,9 +43,15 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 			jsonMapNotInitialized, _ := json.Marshal(constants.NO_WEBSITES_ADDED)
 			w.Write(jsonMapNotInitialized)
 		} else {
-			jsonWIP, _ := json.Marshal("WIP")
-			w.Write(jsonWIP)
-			status.DisplayMap(WebsiteMap)
+
+			jsonResponse, errJsonResponseMarshal := json.Marshal(WebsiteMap)
+
+			if errJsonResponseMarshal != nil {
+				w.Write([]byte(errJsonResponseMarshal.Error()))
+			} else {
+				w.Write(jsonResponse)
+			}
+
 		}
 
 	} else if r.Method == "POST" {
