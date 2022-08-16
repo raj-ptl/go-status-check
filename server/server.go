@@ -44,7 +44,13 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 			w.Write(jsonMapNotInitialized)
 		} else {
 
-			jsonResponse, errJsonResponseMarshal := json.Marshal(WebsiteMap)
+			statusResponse := models.StatusResponse{}
+
+			for _, v := range *WebsiteMap {
+				statusResponse.StatusArray = append(statusResponse.StatusArray, *v)
+			}
+
+			jsonResponse, errJsonResponseMarshal := json.Marshal(statusResponse)
 
 			if errJsonResponseMarshal != nil {
 				w.Write([]byte(errJsonResponseMarshal.Error()))

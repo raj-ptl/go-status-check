@@ -7,13 +7,15 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/raj-ptl/go-status-check/models"
 )
 
-type WebsiteStatus struct {
-	URL         string
-	Status      string
-	LastChecked time.Time
-}
+// type WebsiteStatus struct {
+// 	URL         string
+// 	Status      string
+// 	LastChecked time.Time
+// }
 
 type StatusChecker interface {
 	Check(ctx context.Context, name string) (status bool, err error)
@@ -24,9 +26,9 @@ type HttpChecker struct {
 
 var hc HttpChecker
 
-var WebsiteMap = make(map[string]*WebsiteStatus)
+var WebsiteMap = make(map[string]*models.WebsiteStatus)
 
-func ExposeMap() *map[string]*WebsiteStatus {
+func ExposeMap() *map[string]*models.WebsiteStatus {
 	return &WebsiteMap
 }
 
@@ -62,7 +64,7 @@ func (h HttpChecker) Check(ctx context.Context, name string) (status string, err
 	return "UP", nil
 }
 
-func DisplayMap(m *map[string]*WebsiteStatus) {
+func DisplayMap(m *map[string]*models.WebsiteStatus) {
 	for _, v := range *m {
 		fmt.Printf("%+v\n", v)
 	}
@@ -71,7 +73,7 @@ func DisplayMap(m *map[string]*WebsiteStatus) {
 func UpdateSingleSite(url string, ch chan int) {
 	fmt.Printf("INVOKED FOR : %s", url)
 	status, _ := hc.Check(context.TODO(), url)
-	WebsiteMap[url] = &WebsiteStatus{
+	WebsiteMap[url] = &models.WebsiteStatus{
 		URL:         url,
 		Status:      status,
 		LastChecked: time.Now(),
