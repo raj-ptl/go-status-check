@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/raj-ptl/go-status-check/constants"
 	"github.com/raj-ptl/go-status-check/models"
 	"github.com/raj-ptl/go-status-check/status"
 )
@@ -39,7 +40,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		//var hc status.HttpChecker
 
 		if len(status.WebsiteMap) == 0 {
-			jsonMapNotInitialized, _ := json.Marshal("No websites added, use /POST to add websites to status check")
+			jsonMapNotInitialized, _ := json.Marshal(constants.NO_WEBSITES_ADDED)
 			w.Write(jsonMapNotInitialized)
 		} else {
 			jsonWIP, _ := json.Marshal("WIP")
@@ -60,9 +61,9 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		if errUnmarshal != nil {
 
 			if errors.As(errUnmarshal, &unmarshalErr) {
-				errorResponse(w, "Bad Request. Wrong Type provided for field "+unmarshalErr.Field, http.StatusBadRequest)
+				errorResponse(w, constants.BAD_REQUEST_UNKNOWN_FIELD+unmarshalErr.Field, http.StatusBadRequest)
 			} else {
-				errorResponse(w, "Bad Request "+errUnmarshal.Error(), http.StatusBadRequest)
+				errorResponse(w, constants.BAD_REQUEST+errUnmarshal.Error(), http.StatusBadRequest)
 			}
 
 		} else {
@@ -80,12 +81,6 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 
 			for _, site := range sr.Websites {
 
-				// (*WebsiteMap)[site] = &status.WebsiteStatus{
-				// 	URL:         site,
-				// 	Status:      "genericTestStatus",
-				// 	LastChecked: time.Now(),
-				// }
-
 				// update Single Site
 				go status.UpdateSingleSite(site, ch)
 
@@ -94,7 +89,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else {
-		jsonInvalidMethod, _ := json.Marshal("POST/GET Method expected on this endpoint")
+		jsonInvalidMethod, _ := json.Marshal(constants.UNEXPECTED_ENDPOINT)
 		w.Write(jsonInvalidMethod)
 	}
 

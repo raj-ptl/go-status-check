@@ -69,6 +69,7 @@ func DisplayMap(m *map[string]*WebsiteStatus) {
 }
 
 func UpdateSingleSite(url string, ch chan int) {
+	fmt.Printf("INVOKED FOR : %s", url)
 	status, _ := hc.Check(context.TODO(), url)
 	WebsiteMap[url] = &WebsiteStatus{
 		URL:         url,
@@ -76,4 +77,25 @@ func UpdateSingleSite(url string, ch chan int) {
 		LastChecked: time.Now(),
 	}
 	<-ch
+}
+
+/*
+pollingRate -> Seconds
+*/
+func UpdateAllSites() {
+	ch := make(chan int)
+
+	for key := range WebsiteMap {
+		go UpdateSingleSite(key, ch)
+	}
+
+}
+
+func PollUpdateAllSites(pollingRate float32) {
+	for {
+		fmt.Printf("Invoking update all sites\n")
+		UpdateAllSites()
+		fmt.Printf("Sleeping for 10s\n")
+		time.Sleep(time.Duration(pollingRate) * time.Second)
+	}
 }
