@@ -84,9 +84,8 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 				jsonErrMarshal, _ := json.Marshal(errMarshal)
 				w.Write(jsonErrMarshal)
 			} else {
-				//w.Write(srJson)
-				jsonWIP, _ := json.Marshal("WIP")
-				w.Write(jsonWIP)
+				jsonAdded, _ := json.Marshal("Added the websites to check list")
+				w.Write(jsonAdded)
 			}
 
 			ch := make(chan int)
