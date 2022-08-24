@@ -37,7 +37,6 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method == "GET" {
-		//var hc status.HttpChecker
 
 		if len(status.WebsiteMap) == 0 {
 			jsonMapNotInitialized, _ := json.Marshal(constants.NO_WEBSITES_ADDED)

@@ -11,12 +11,6 @@ import (
 	"github.com/raj-ptl/go-status-check/models"
 )
 
-// type WebsiteStatus struct {
-// 	URL         string
-// 	Status      string
-// 	LastChecked time.Time
-// }
-
 type StatusChecker interface {
 	Check(ctx context.Context, name string) (status bool, err error)
 }
@@ -53,10 +47,6 @@ func (h HttpChecker) Check(ctx context.Context, name string) (status string, err
 		log.Fatalln(err)
 	}
 
-	fmt.Printf("%s:\n", name)
-	fmt.Printf("Status : %s:\n", res.Status)
-	fmt.Printf("Status Code : %d:\n", res.StatusCode)
-
 	if res.StatusCode != 200 {
 		return "DOWN", nil
 	}
@@ -71,7 +61,6 @@ func DisplayMap(m *map[string]*models.WebsiteStatus) {
 }
 
 func UpdateSingleSite(url string, ch chan int) {
-	fmt.Printf("INVOKED FOR : %s", url)
 	status, _ := hc.Check(context.TODO(), url)
 	WebsiteMap[url] = &models.WebsiteStatus{
 		URL:         url,
