@@ -40,6 +40,30 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 
+		queryParam, doesExist := r.URL.Query()["name"]
+
+		if doesExist && len(queryParam[0]) >= 1 {
+
+			status.UpdateSingleSiteSynchronous(queryParam[0])
+
+			statusResponse := models.StatusResponse{}
+			WebsiteMapMutex.RLock()
+
+			statusResponse.StatusArray = append(statusResponse.StatusArray, *(*WebsiteMap)[queryParam[0]])
+
+			WebsiteMapMutex.RUnlock()
+
+			jsonResponse, errJsonResponseMarshal := json.Marshal(statusResponse)
+
+			if errJsonResponseMarshal != nil {
+				w.Write([]byte(errJsonResponseMarshal.Error()))
+			} else {
+				w.Write(jsonResponse)
+			}
+
+			return
+		}
+
 		if len(status.WebsiteMap) == 0 {
 			jsonMapNotInitialized, _ := json.Marshal(constants.NO_WEBSITES_ADDED)
 			w.Write(jsonMapNotInitialized)

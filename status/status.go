@@ -59,6 +59,17 @@ func UpdateSingleSite(url string, ch chan int) {
 	<-ch
 }
 
+func UpdateSingleSiteSynchronous(url string) {
+	status, _ := hc.Check(context.TODO(), url)
+	WebsiteMapMutex.Lock()
+	WebsiteMap[url] = &models.WebsiteStatus{
+		URL:         url,
+		Status:      status,
+		LastChecked: time.Now(),
+	}
+	WebsiteMapMutex.Unlock()
+}
+
 func UpdateAllSites() {
 	ch := make(chan int)
 
