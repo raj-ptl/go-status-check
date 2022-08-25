@@ -1,5 +1,7 @@
 ## Go Status Check
 
+Base url : `localhost:9090`
+
 Endpoints : 
 
 > post URLs to track
