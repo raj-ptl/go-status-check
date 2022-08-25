@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"github.com/raj-ptl/go-status-check/constants"
@@ -36,6 +38,16 @@ func welcomeHandler(w http.ResponseWriter, r *http.Request) {
 
 func statusHandler(w http.ResponseWriter, r *http.Request) {
 
+	logFile, err := os.OpenFile("app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		log.Fatalf("ERROR while opening log file : %v", err)
+	}
+
+	log.SetOutput(logFile)
+
+	defer logFile.Close()
+
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method == "GET" {
@@ -43,6 +55,8 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		queryParam, doesExist := r.URL.Query()["name"]
 
 		if doesExist && len(queryParam[0]) >= 1 {
+
+			log.Printf("INFO : Got request for single site check : %s", queryParam[0])
 
 			status.UpdateSingleSiteSynchronous(queryParam[0])
 
@@ -87,6 +101,8 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else if r.Method == "POST" {
+
+		log.Printf("INFO : Got POST request for adding multiple sites to check list\n")
 
 		var sr models.StatusRequest
 

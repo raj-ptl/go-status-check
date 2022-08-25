@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -48,6 +49,17 @@ func (h HttpChecker) Check(ctx context.Context, name string) (status string, err
 }
 
 func UpdateSingleSite(url string, ch chan int) {
+
+	logFile, err := os.OpenFile("app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		log.Fatalf("ERROR while opening log file : %v", err)
+	}
+
+	log.SetOutput(logFile)
+
+	defer logFile.Close()
+
 	status, _ := hc.Check(context.TODO(), url)
 	WebsiteMapMutex.Lock()
 	WebsiteMap[url] = &models.WebsiteStatus{
@@ -56,6 +68,9 @@ func UpdateSingleSite(url string, ch chan int) {
 		LastChecked: time.Now(),
 	}
 	WebsiteMapMutex.Unlock()
+
+	log.Printf("INFO : Updated status for site : %s -> %s", url, status)
+
 	<-ch
 }
 
@@ -84,7 +99,6 @@ pollingRate -> Seconds
 */
 func PollUpdateAllSites(pollingRate float32) {
 	for {
-		fmt.Printf("Invoking update all sites\n")
 		UpdateAllSites()
 		fmt.Printf("Sleeping for %v seconds\n", pollingRate)
 		time.Sleep(time.Duration(pollingRate) * time.Second)
