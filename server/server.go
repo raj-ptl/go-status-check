@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/raj-ptl/go-status-check/constants"
 	"github.com/raj-ptl/go-status-check/models"
@@ -12,6 +13,7 @@ import (
 )
 
 var WebsiteMap = status.ExposeMap()
+var WebsiteMapMutex = sync.RWMutex{}
 
 func ServeRequests() {
 	fmt.Println("Serving now...")
@@ -44,10 +46,11 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 
 			statusResponse := models.StatusResponse{}
-
+			WebsiteMapMutex.RLock()
 			for _, v := range *WebsiteMap {
 				statusResponse.StatusArray = append(statusResponse.StatusArray, *v)
 			}
+			WebsiteMapMutex.RUnlock()
 
 			jsonResponse, errJsonResponseMarshal := json.Marshal(statusResponse)
 

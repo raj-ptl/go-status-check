@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/raj-ptl/go-status-check/models"
@@ -21,6 +22,7 @@ type HttpChecker struct {
 var hc HttpChecker
 
 var WebsiteMap = make(map[string]*models.WebsiteStatus)
+var WebsiteMapMutex = sync.RWMutex{}
 
 func ExposeMap() *map[string]*models.WebsiteStatus {
 	return &WebsiteMap
@@ -47,11 +49,13 @@ func (h HttpChecker) Check(ctx context.Context, name string) (status string, err
 
 func UpdateSingleSite(url string, ch chan int) {
 	status, _ := hc.Check(context.TODO(), url)
+	WebsiteMapMutex.Lock()
 	WebsiteMap[url] = &models.WebsiteStatus{
 		URL:         url,
 		Status:      status,
 		LastChecked: time.Now(),
 	}
+	WebsiteMapMutex.Unlock()
 	<-ch
 }
 
