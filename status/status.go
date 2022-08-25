@@ -26,16 +26,7 @@ func ExposeMap() *map[string]*models.WebsiteStatus {
 	return &WebsiteMap
 }
 
-func InitializeMap() {
-	fmt.Println("InitializeMap() invoked ...")
-
-	DisplayMap(&WebsiteMap)
-
-}
-
 func (h HttpChecker) Check(ctx context.Context, name string) (status string, err error) {
-
-	fmt.Println("Checking for : ", name)
 
 	if strings.Split(name, ":")[0] != "http" || strings.Split(name, ":")[0] != "https" {
 		name = "http://" + name
@@ -54,12 +45,6 @@ func (h HttpChecker) Check(ctx context.Context, name string) (status string, err
 	return "UP", nil
 }
 
-func DisplayMap(m *map[string]*models.WebsiteStatus) {
-	for _, v := range *m {
-		fmt.Printf("%+v\n", v)
-	}
-}
-
 func UpdateSingleSite(url string, ch chan int) {
 	status, _ := hc.Check(context.TODO(), url)
 	WebsiteMap[url] = &models.WebsiteStatus{
@@ -70,9 +55,6 @@ func UpdateSingleSite(url string, ch chan int) {
 	<-ch
 }
 
-/*
-pollingRate -> Seconds
-*/
 func UpdateAllSites() {
 	ch := make(chan int)
 
@@ -82,11 +64,14 @@ func UpdateAllSites() {
 
 }
 
+/*
+pollingRate -> Seconds
+*/
 func PollUpdateAllSites(pollingRate float32) {
 	for {
 		fmt.Printf("Invoking update all sites\n")
 		UpdateAllSites()
-		fmt.Printf("Sleeping for 10s\n")
+		fmt.Printf("Sleeping for %v seconds\n", pollingRate)
 		time.Sleep(time.Duration(pollingRate) * time.Second)
 	}
 }

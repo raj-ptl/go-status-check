@@ -54,4 +54,4 @@ Sample response
 ---
 #### Polling Rate
 
-Polling rate can be modified in `status/status.go`
+Time after which status should be checked again can be modified in `constants/constants.go`
